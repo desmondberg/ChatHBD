@@ -4,8 +4,7 @@ import pyttsx3
 
 recognizer = speech_recognition.Recognizer()
 
-while True:
-
+def recognize_speech():
     try:
         
         with speech_recognition.Microphone() as mic:
@@ -17,12 +16,12 @@ while True:
             text = text.lower()
 
             print(f"Recognized {text}")
+            return text
              
     except speech_recognition.UnknownValueError:
             print("Sorry, I could not understand the audio.")
+            return ""
     except speech_recognition.RequestError as e:
         print(f"Could not request results; {e}")
-
-        recognizer = speech_recognition.Recognizer()
-        continue 
+        return ""
     

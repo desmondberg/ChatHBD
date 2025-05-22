@@ -12,7 +12,7 @@ def speak(text):
     TTS_engine.say(text)
     TTS_engine.runAndWait()
 
-while True:
+def detect_wake_word():
     try:
         with speech_recognition.Microphone() as mic:
             print("Listening for activation word")
@@ -24,9 +24,13 @@ while True:
             if ACTIVATION_WORD in text:
                 print("Activation word detected!")
                 speak("Hello, how can I assist you?")
-                break
+                return True
+            return False
 
     except speech_recognition.UnknownValueError:
         print("Could not understand audio.")
+        return False
+    
     except speech_recognition.RequestError as e:
         print(f"Could not request results; {e}")
+        return False
