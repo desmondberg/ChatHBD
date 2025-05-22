@@ -18,8 +18,10 @@ while True:
 
             print(f"Recognized {text}")
              
-    except speech_recognition.UnknownValueError():
-
+    except speech_recognition.UnknownValueError:
+            print("Sorry, I could not understand the audio.")
+    except speech_recognition.RequestError as e:
+        print(f"Could not request results; {e}")
 
         recognizer = speech_recognition.Recognizer()
         continue 
