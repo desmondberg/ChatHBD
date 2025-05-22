@@ -12,7 +12,7 @@ def speak(text):
     TTS_engine.say(text)
     TTS_engine.runAndWait()
 
-def detect_wake_word():
+def detect_activation_word():
     try:
         with speech_recognition.Microphone() as mic:
             print("Listening for activation word")
