@@ -1,31 +1,29 @@
 import speech_recognition
-import pyttsx3
-import pyaudio
+from config import mic
+from config import recognizer
+
+from SpeechRecognition import recognize_speech
+from RecordSpeech import record
+from TTSEngine import speak
 
 ACTIVATION_WORD = "hey chat"
 
-recognizer = speech_recognition.Recognizer()
-# TTS is text to speech
-TTS_engine = pyttsx3.init()
-
-def speak(text):
-    TTS_engine.say(text)
-    TTS_engine.runAndWait()
-
 def detect_activation_word():
     try:
-        with speech_recognition.Microphone() as mic:
-            print("Listening for activation word")
-            audio = recognizer.listen(mic, phrase_time_limit=5)
+        print("Listening for activation word")
+        #listen for 5 seconds
+        with mic as source:
+            audio = recognizer.listen(source, phrase_time_limit=5)
 
-            text = recognizer.recognize_google(audio).lower()
-            print(text)
+        text = recognize_speech(audio).lower()
+        print(text)
 
-            if ACTIVATION_WORD in text:
-                print("Activation word detected!")
-                speak("Hello, how can I assist you?")
-                return True
-            return False
+        if ACTIVATION_WORD in text:
+            print("Activation word detected!")
+            speak("Hello, how can I assist you?")
+            record()
+            return True
+        return False
 
     except speech_recognition.UnknownValueError:
         print("Could not understand audio.")

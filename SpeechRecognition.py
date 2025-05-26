@@ -2,21 +2,16 @@ import speech_recognition
 import pyaudio
 import pyttsx3
 
-recognizer = speech_recognition.Recognizer()
+from config import recognizer
 
-def recognize_speech():
+
+def recognize_speech(audio):
     try:
-        
-        with speech_recognition.Microphone() as mic:
+        text = recognizer.recognize_google(audio)
+        text = text.lower()
 
-            recognizer.adjust_for_ambient_noise(mic, duration=0.2)
-            audio = recognizer.listen(mic)
-
-            text = recognizer.recognize_google(audio)
-            text = text.lower()
-
-            print(f"Recognized {text}")
-            return text
+        print(f"Recognized {text}")
+        return text
              
     except speech_recognition.UnknownValueError:
             print("Sorry, I could not understand the audio.")
