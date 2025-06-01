@@ -2,7 +2,7 @@ import speech_recognition
 from config import mic
 from config import recognizer
 
-from SpeechRecognition import recognize_speech
+from SpeechRecognition import recognize_speech, audiofile_to_audiodata
 from RecordSpeech import record
 from TTSEngine import speak
 
@@ -15,7 +15,7 @@ def detect_activation_word():
         with mic as source:
             audio = recognizer.listen(source, phrase_time_limit=5)
 
-        text = recognize_speech(audio).lower()
+        text = recognize_speech(audio=audio).lower()
         print(text)
 
         if ACTIVATION_WORD in text:

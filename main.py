@@ -11,7 +11,9 @@ with mic as source:
     recognizer.adjust_for_ambient_noise(source, duration=1)
     print(f"set silence threshold to: {recognizer.energy_threshold}")
 
+
+#once activation word was detected and the user's prompt was received, send user's prompt to recognize_speech()
 if detect_activation_word():
-    command = recognize_speech()
+    command = recognize_speech("./audio/prompt.wav")
     if command:
         print(f"Command received: {command}")

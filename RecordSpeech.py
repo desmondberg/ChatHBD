@@ -41,7 +41,7 @@ def record():
     with wave.open("audio/prompt.wav", "wb") as wf:
         wf.setnchannels(1)
         wf.setsampwidth(2) 
-        wf.setframerate(16000)
+        wf.setframerate(44100)
         wf.writeframes(b''.join(frames))
 
     print("Saved to prompt.wav")
