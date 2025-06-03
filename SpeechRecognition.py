@@ -20,6 +20,7 @@ def recognize_speech(path = None, audio = None):
         text = text.lower()
 
         print(f"Recognized {text}")
+        #TODO - pass text to ChatGPT
         return text
              
     except speech_recognition.UnknownValueError:
