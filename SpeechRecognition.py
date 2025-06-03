@@ -23,10 +23,10 @@ def recognize_speech(path = None, audio = None):
         #TODO - pass text to ChatGPT
         return text
              
-    except speech_recognition.UnknownValueError:
-            print("Sorry, I could not understand the audio.")
+    except speech_recognition.UnknownValueError as e:
+            print(f"Sorry, I could not understand the audio. {e}")
             return ""
     except speech_recognition.RequestError as e:
-        print(f"Could not request results; {e}")
+        print(f"Could not request results. {e}")
         return ""
     

@@ -21,6 +21,7 @@ def complete(prompt):
     )
 
     print(completion.choices[0].message)
+    return completion.choices[0].message
 
 #test temperature prompt
 complete("Can you tell me the temperature right now?")

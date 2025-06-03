@@ -2,7 +2,8 @@ from ActivationWord import detect_activation_word
 from SpeechRecognition import recognize_speech
 from config import mic
 from config import recognizer
-
+from PromptAPI import complete
+from TTSEngine import speak
 
 print("ChatHBD up and running")
 
@@ -16,4 +17,7 @@ with mic as source:
 if detect_activation_word():
     command = recognize_speech("./audio/prompt.wav")
     if command:
-        print(f"Command received: {command}")
+        print(f"prompt received: {command}")
+        print("sending prompt to API...")
+        response = complete(command)
+        speak(response.content)
