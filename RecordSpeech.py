@@ -26,8 +26,11 @@ def record(SILENCE_THRESHOLD):
         raw_data = indata.copy().astype(np.int16).tobytes()
         frames.append(raw_data)
 
+        #calculate volume using root mean square
         rms = audioop.rms(raw_data, 2)
 
+        #check every chunk. if the chunk's volume is below the silence threshold, add its duration to the total silent time. 
+        #once the total silent time has exceeded SILENCE_DURATION, stop the recording.
         if rms < SILENCE_THRESHOLD:
             silent_time += CHUNK_DURATION
         else:
