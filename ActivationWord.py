@@ -1,44 +1,45 @@
-import speech_recognition
-from config import mic
-from config import recognizer
+# voice_activation.py
+import sounddevice as sd
+import soundfile as sf
+import speech_recognition as sr
 
-from SpeechRecognition import recognize_speech, audiofile_to_audiodata
+from config import recognizer,SAMPLE_RATE
+from SpeechRecognition import recognize_speech 
 from RecordSpeech import record
 from TTSEngine import speak
 
-#broke this up into two parts-
-#greetings - hi, hey, hello
-#names - chat, chad (to account for the speech recognizer misinterpreting the user)
+ACTIVATION_GREETINGS = ["hi", "hey", "hello"]
+ACTIVATION_NAMES = ["chat", "chad", "cha", "ch"]
 
-ACTIVATION_GREETINGS = ["hi","hey","hello"]
-ACTIVATION_NAMES = ["chat","chad","cha","ch"]
+filename = "prompt.wav"
 
-#split the text up into a set containing each of its words in order to find matches with the activation greetings and names.
 def deconstruct(text):
     return set(word for word in text.strip().split())
 
-def detect_activation_word():
+def detect_activation_word(SILENCE_THRESHOLD):
     try:
-        print("Listening for activation word")
-        #listen for 5 seconds
-        with mic as source:
-            audio = recognizer.listen(source, phrase_time_limit=5)
+        print("Listening for activation word...")
 
-        text = deconstruct(recognize_speech(audio=audio).lower())
-        #print(text)
+        #we were previously using SpeechRecognition's Microphone class to record audio. however, Microphone depends on pyaudio, which we couldn't make work on linux, so we switched to sounddevice
+        audio = sd.rec(int(5 * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype='int16')
+        sd.wait()
+        sf.write(filename, audio, SAMPLE_RATE)
 
-        #check if the initial prompt contains any combination of the greetings and names defined above
-        if any(greeting in text for greeting in ACTIVATION_GREETINGS) and any(name in text for name in ACTIVATION_NAMES):
+        with sr.AudioFile(filename) as source:
+            audio_data = recognizer.record(source)
+            text = deconstruct(recognizer.recognize_google(audio_data).lower())
+
+        if any(greeting in text for greeting in ACTIVATION_GREETINGS) and \
+           any(name in text for name in ACTIVATION_NAMES):
             print("Activation word detected!")
-            speak("Hello, how can I assist you?")
-            record()
+            speak("Hi!")
             return True
         return False
 
-    except speech_recognition.UnknownValueError:
-        print("Could not understand audio.")
+    except sr.UnknownValueError:
+        print("sorry, i didn't understand")
         return False
-    
-    except speech_recognition.RequestError as e:
-        print(f"Could not request results; {e}")
+
+    except sr.RequestError as e:
+        print(f"request failed: {e}")
         return False

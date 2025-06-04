@@ -1,6 +1,4 @@
 import speech_recognition
-import pyaudio
-import pyttsx3
 
 from config import recognizer
 

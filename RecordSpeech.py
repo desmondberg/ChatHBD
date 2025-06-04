@@ -1,47 +1,61 @@
-import speech_recognition as sr
-import time
-import wave
+# RecordSpeech.py
+import sounddevice as sd
+import numpy as np
 import audioop
+import wave
+import time
+from calibrate import calibrate_silence_threshold
 
-from config import mic
-from config import recognizer
-from config import SILENCE_DURATION
-from config import SILENCE_THRESHOLD
-from config import CHUNK_DURATION
+from config import SILENCE_DURATION, CHUNK_DURATION, SAMPLE_RATE
 
 
-def record():
+filename = "audio/prompt.wav"
+
+def record(SILENCE_THRESHOLD):
+    
     frames = []
-    silent_time = 0
-    print("Recording... Speak into the mic.")
+    silent_time = 0.0
 
-    with mic as source:
+    chunk_size = int(CHUNK_DURATION * SAMPLE_RATE)
+    print("please speak now")
 
-        while True:
+    def callback(indata, frames_, time_, status):
+        nonlocal silent_time, frames
 
-            audio = recognizer.record(source, duration=CHUNK_DURATION)
-            raw_data = audio.get_raw_data()
-            frames.append(raw_data)
+        #convert to 16 bit
+        raw_data = indata.copy().astype(np.int16).tobytes()
+        frames.append(raw_data)
 
+        rms = audioop.rms(raw_data, 2)
 
-            rms = audioop.rms(raw_data, 2)  
+        if rms < SILENCE_THRESHOLD:
+            silent_time += CHUNK_DURATION
+        else:
+            silent_time = 0.0
 
-            if rms < SILENCE_THRESHOLD:
-                silent_time += CHUNK_DURATION
-            else:
-                silent_time = 0
+        if silent_time >= SILENCE_DURATION:
+            print("silence detected. recording stopped")
+            raise sd.CallbackStop()
 
-            if silent_time >= SILENCE_DURATION:
-                print("Silence detected. Stopping recording.")
-                break
+    try:
+        with sd.InputStream(
+            samplerate=SAMPLE_RATE,
+            channels=1,
+            dtype='int16',
+            callback=callback,
+            blocksize=chunk_size
+        ) as stream:
+            while stream.active:
+                time.sleep(0.1)
+    except sd.CallbackStop:
+        pass
 
-    print("Saving audio...")
+    print("saving audio...")
 
-    #save result as WAV
-    with wave.open("audio/prompt.wav", "wb") as wf:
+    with wave.open(filename, "wb") as wf:
         wf.setnchannels(1)
         wf.setsampwidth(2) 
-        wf.setframerate(44100)
-        wf.writeframes(b''.join(frames))
+        wf.setframerate(SAMPLE_RATE)
+        wf.writeframes(b"".join(frames))
 
-    print("Saved to prompt.wav")
+    print(f"Saved to {filename}")
