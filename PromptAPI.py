@@ -24,6 +24,6 @@ def complete(prompt):
     return completion.choices[0].message
 
 #test temperature prompt
-complete("Can you tell me the temperature right now?")
+#complete("Can you tell me the temperature right now?")
 #test humidity prompt
-complete("What's the humidity in this room right now?")
+#complete("What's the humidity in this room right now?")
